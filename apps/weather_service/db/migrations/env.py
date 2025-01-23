@@ -1,79 +1,38 @@
+import sys
+from pathlib import Path
 from logging.config import fileConfig
-from sqlalchemy import engine_from_config, pool
 from alembic import context
+from sqlalchemy import engine_from_config, pool
 
-from apps.weather_service.core.config import settings  # Load environment variables
-from apps.weather_service.db.base import Base  # Import Base
-from libs.models.weather_model import WeatherData  # Import models to register
+# Add the root directory to PYTHONPATH
+sys.path.append(str(Path(__file__).resolve().parents[3]))
 
-# Alembic Config object, provides access to .ini file values
+# Import settings
+from apps.weather_service.core.config import settings
+from apps.weather_service.db.models import Base  # Adjust to your models
+
+# Load Alembic config
 config = context.config
+fileConfig(config.config_file_name)
 
-# Validate that DATABASE_URL is provided
-if not settings.DATABASE_URL:
-    raise ValueError(
-        "DATABASE_URL is not set. Please check your environment configuration."
-    )
-
-# Update the config with the database URL from environment variables
+# Set up the database URL dynamically
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 
-# Set up loggers from the config file
-if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
-
-# Use SQLAlchemy metadata for autogenerate support
+# Metadata for Alembic
 target_metadata = Base.metadata
 
-
-def run_migrations_offline() -> None:
-    """
-    Run migrations in 'offline' mode.
-
-    Configures the context with just a URL and not an Engine.
-    Calls to context.execute() emit the given string to the script output.
-    """
-    url = config.get_main_option("sqlalchemy.url")
-    if not url:
-        raise ValueError("Database URL is missing from Alembic configuration.")
-
-    context.configure(
-        url=url,
-        target_metadata=target_metadata,
-        literal_binds=True,
-        dialect_opts={"paramstyle": "named"},
-    )
-
-    with context.begin_transaction():
-        context.run_migrations()
-
-
-def run_migrations_online() -> None:
-    """
-    Run migrations in 'online' mode.
-
-    In this scenario, an Engine is created and a connection is associated
-    with the context.
-    """
+def run_migrations_online():
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        config.get_section(config.config_ini_section),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
-
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection,
-            target_metadata=target_metadata,
-            compare_type=True,  # Ensures changes to column types are detected
-        )
-
+        context.configure(connection=connection, target_metadata=target_metadata)
         with context.begin_transaction():
             context.run_migrations()
 
-
-# Determine whether to run migrations in offline or online mode
 if context.is_offline_mode():
-    run_migrations_offline()
+    raise NotImplementedError("Offline mode is not implemented.")
 else:
     run_migrations_online()
