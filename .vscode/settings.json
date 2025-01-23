@@ -1,0 +1,38 @@
+{
+    // Use Black for Python formatting
+    "python.formatting.provider": "black",
+
+    // Automatically format files on save
+    "editor.formatOnSave": true,
+
+    // Enable Python linting
+    "python.linting.enabled": true,
+
+    // Use Flake8 for linting
+    "python.linting.flake8Enabled": true,
+
+    // Configure Flake8
+    "python.linting.flake8Args": [
+        "--max-line-length=88",
+        "--select=E,W,F"
+    ],
+
+    // Enable type checking with Mypy
+    "python.linting.mypyEnabled": true,
+
+    // Exclude certain paths from linting
+    "files.exclude": {
+        "**/__pycache__": true,
+        "**/*.pyc": true,
+        ".venv": true,
+        ".env": true
+    },
+
+    // Enable error highlighting in JSON schemas
+    "json.schemas": [
+        {
+            "fileMatch": ["*.json"],
+            "url": "https://json.schemastore.org/tsconfig.json"
+        }
+    ]
+}
