@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request, HTTPException
 from libs.utils.logger import get_logger
 from apps.weather_service.core.config import settings
 from libs.utils.api_client import fetch_weather
+ from apps.ai_service.api.endpoints.ai import router as decision_maker
 from libs.utils.weather_logic import should_go_out
 from apps.weather_service.api.endpoints.weather import router as weather_router
 from fastapi.responses import JSONResponse
@@ -125,8 +126,9 @@ def weather_decision(city: str):
         raise HTTPException(status_code=500, detail="API key is not configured")
 
     try:
-        weather_data = fetch_weather(api_key, city)
-        return should_go_out(weather_data, city)
+       # weather_data = fetch_weather(api_key, city)
+
+        return should_go_out(api_key, city)
     except Exception as exc:
         logger.error(
             "Error fetching or processing weather data", extra={"error": str(exc)}
@@ -136,3 +138,5 @@ def weather_decision(city: str):
 
 # Include other API routes
 app.include_router(weather_router, prefix="/api/v1", tags=["Weather"])
+ app.include_router(decision_maker, prefix="/api/v1", tags=["Decision Maker"])
+

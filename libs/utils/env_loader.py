@@ -17,7 +17,7 @@ def load_env():
 
 try:
     # Load environment variables and validate
-    settings = settings()
+    # settings = settings()
     # Access the API key in your application
     api_key = settings.OPENWEATHER_API_KEY
     logger.info("Environment variables successfully validated and loaded.")
